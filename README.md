@@ -1,5 +1,7 @@
 # Planning 2x8 - Équipes A et B
 
+🔗 **[Démo en ligne](https://nicowithmanyo.github.io/Alex-2x8/)**
+
 Application web responsive pour la gestion d'un planning 2x8 avec alternance des équipes.
 
 ## 🚀 Fonctionnalités
@@ -19,7 +21,7 @@ Application web responsive pour la gestion d'un planning 2x8 avec alternance des
 
 ## 🎯 Utilisation
 
-1. Ouvrir `planning.html` dans un navigateur
+1. Ouvrir `index.html` dans un navigateur
 2. Le planning démarre automatiquement à aujourd'hui-7 jours
 3. Utiliser les contrôles flottants pour naviguer :
    - Sélecteur de date (navigation automatique)
