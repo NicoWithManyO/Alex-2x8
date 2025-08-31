@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planning 2x8 - Équipes A et B</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .header h1 {
+            margin-bottom: 5px;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 5px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .morning { background-color: #4CAF50; }
+        .afternoon { background-color: #2196F3; }
+        .weekend { background-color: #9e9e9e; }
+
+        .planning-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .planning-table th {
+            background-color: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            border-bottom: 2px solid #dee2e6;
+            position: sticky;
+            top: 85px;
+            z-index: 50;
+        }
+
+        .planning-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .date-cell {
+            font-weight: 500;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        .team-cell {
+            font-weight: 600;
+            color: white;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .morning-shift {
+            background-color: #4CAF50;
+        }
+
+        .afternoon-shift {
+            background-color: #2196F3;
+        }
+
+        .weekend-row {
+            background-color: #f5f5f5;
+        }
+
+        .weekend-row .team-cell {
+            background-color: #9e9e9e;
+            color: #666;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+        }
+
+        .floating-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .date-input-float {
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 20px;
+            outline: none;
+            font-size: 13px;
+            min-width: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .date-input-float::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .date-input-float::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+        }
+
+        .today-button {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 20px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .today-button:hover {
+            background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .planning-table th:first-child {
+            text-align: right;
+        }
+
+        .highlight-row {
+            animation: highlight 2s ease-in-out;
+        }
+
+        @keyframes highlight {
+            0% { background-color: #fff3cd; }
+            50% { background-color: #ffeaa7; }
+            100% { background-color: transparent; }
+        }
+
+        .today-row {
+            background-color: #e3f2fd !important;
+            border-left: 4px solid #2196F3;
+        }
+
+        .today-row .date-cell {
+            font-weight: 700;
+            color: #1976D2;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 1.5em;
+            }
+            
+            .header p {
+                font-size: 0.9em;
+            }
+            
+            .legend {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .planning-table th,
+            .planning-table td {
+                padding: 8px 6px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3em;
+            }
+            
+            .header p {
+                font-size: 0.8em;
+            }
+            
+            .legend {
+                display: none;
+            }
+            
+            .floating-controls {
+                bottom: 15px;
+                left: 15px;
+                gap: 8px;
+            }
+            
+            .date-input-float {
+                min-width: 100px;
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            .today-button {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+            
+            .planning-table th,
+            .planning-table td {
+                padding: 6px 4px;
+                font-size: 0.8em;
+            }
+            
+            .planning-table th {
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 380px) {
+            body {
+                padding: 5px;
+            }
+            
+            .header {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 1.1em;
+            }
+            
+            .header p {
+                font-size: 0.7em;
+            }
+            
+            .floating-controls {
+                bottom: 10px;
+                left: 10px;
+                gap: 6px;
+            }
+            
+            .date-input-float {
+                min-width: 90px;
+                font-size: 11px;
+                padding: 5px 8px;
+            }
+            
+            .today-button {
+                padding: 5px 10px;
+                font-size: 11px;
+            }
+            
+            .planning-table th,
+            .planning-table td {
+                padding: 4px 2px;
+                font-size: 0.7em;
+            }
+            
+            .planning-table th {
+                font-size: 0.75em;
+            }
+            
+            .date-cell {
+                font-size: 0.65em;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Planning 2x8 - Équipes A et B</h1>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color morning"></div>
+                    <span>Matin (4h-12h)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color afternoon"></div>
+                    <span>Après-midi (12h-20h)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color weekend"></div>
+                    <span>Week-end</span>
+                </div>
+            </div>
+            
+        </div>
+
+        <table class="planning-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Équipe A</th>
+                    <th>Équipe B</th>
+                </tr>
+            </thead>
+            <tbody id="planning-body">
+            </tbody>
+        </table>
+
+        <div class="loading" id="loading">Chargement...</div>
+    </div>
+
+    <!-- Contrôles flottants -->
+    <div class="floating-controls">
+        <input type="date" class="date-input-float" id="date-input" placeholder="JJ/MM/AAAA">
+        <button class="today-button" id="today-button">Aujourd'hui</button>
+    </div>
+
+    <script>
+        class PlanningGenerator {
+            constructor() {
+                this.currentDate = new Date();
+                this.currentDate.setHours(0, 0, 0, 0);
+                this.planningBody = document.getElementById('planning-body');
+                this.loading = document.getElementById('loading');
+                this.isLoading = false;
+                this.dateInput = document.getElementById('date-input');
+                this.todayButton = document.getElementById('today-button');
+                
+                this.initPlanning();
+                this.setupInfiniteScroll();
+                this.setupDateNavigation();
+            }
+
+            // Calcule le numéro de semaine ISO
+            getWeekNumber(date) {
+                const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+                const dayNum = d.getUTCDay() || 7;
+                d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+                const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+                return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+            }
+
+            // Vérifie si une semaine est paire
+            isEvenWeek(date) {
+                return this.getWeekNumber(date) % 2 === 0;
+            }
+
+            // Vérifie si c'est un week-end
+            isWeekend(date) {
+                const day = date.getDay();
+                return day === 0 || day === 6; // Dimanche = 0, Samedi = 6
+            }
+
+            // Formate la date selon la largeur de l'écran
+            formatDate(date) {
+                const isSmallScreen = window.innerWidth <= 480;
+                const isTinyScreen = window.innerWidth <= 380;
+                
+                let formattedDate;
+                
+                if (isTinyScreen) {
+                    // Format ultra compact pour très petits écrans
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const weekDay = ['D', 'L', 'M', 'M', 'J', 'V', 'S'][date.getDay()];
+                    formattedDate = `${weekDay} ${day}/${month}`;
+                } else if (isSmallScreen) {
+                    // Format compact pour petits écrans
+                    const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+                    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 
+                                   'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
+                    formattedDate = `${weekDays[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]}`;
+                } else {
+                    // Format complet pour grands écrans
+                    const options = { 
+                        weekday: 'long', 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    };
+                    formattedDate = date.toLocaleDateString('fr-FR', options);
+                }
+                
+                // Ajouter le numéro de semaine pour les lundis
+                if (date.getDay() === 1) {
+                    const weekNum = this.getWeekNumber(date);
+                    if (isTinyScreen) {
+                        formattedDate += ` (${weekNum})`;
+                    } else {
+                        formattedDate += ` (S${weekNum})`;
+                    }
+                }
+                
+                return formattedDate;
+            }
+
+            // Formate le texte des équipes selon la largeur
+            formatTeamText(shift, isWeekend = false) {
+                if (isWeekend) return 'Repos';
+                
+                const isSmallScreen = window.innerWidth <= 480;
+                
+                if (isSmallScreen) {
+                    return shift === 'morning' ? 'Matin' : 'AM';
+                } else {
+                    return shift === 'morning' ? 'Matin' : 'Après-midi';
+                }
+            }
+
+            // Génère une ligne du planning
+            generatePlanningRow(date) {
+                const row = document.createElement('tr');
+                const isWeekendDay = this.isWeekend(date);
+                const isEvenWeekDay = this.isEvenWeek(date);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const isToday = date.getTime() === today.getTime();
+
+                if (isWeekendDay) {
+                    row.classList.add('weekend-row');
+                }
+
+                if (isToday) {
+                    row.classList.add('today-row');
+                }
+
+                // Ajouter un attribut data pour identifier la date
+                row.setAttribute('data-date', date.toISOString().split('T')[0]);
+
+                // Cellule date
+                const dateCell = document.createElement('td');
+                dateCell.classList.add('date-cell');
+                dateCell.textContent = this.formatDate(date);
+                row.appendChild(dateCell);
+
+                // Cellule équipe A
+                const teamACell = document.createElement('td');
+                teamACell.classList.add('team-cell');
+                if (isWeekendDay) {
+                    teamACell.textContent = this.formatTeamText('', true);
+                } else if (isEvenWeekDay) {
+                    teamACell.textContent = this.formatTeamText('morning');
+                    teamACell.classList.add('morning-shift');
+                } else {
+                    teamACell.textContent = this.formatTeamText('afternoon');
+                    teamACell.classList.add('afternoon-shift');
+                }
+                row.appendChild(teamACell);
+
+                // Cellule équipe B
+                const teamBCell = document.createElement('td');
+                teamBCell.classList.add('team-cell');
+                if (isWeekendDay) {
+                    teamBCell.textContent = this.formatTeamText('', true);
+                } else if (isEvenWeekDay) {
+                    teamBCell.textContent = this.formatTeamText('afternoon');
+                    teamBCell.classList.add('afternoon-shift');
+                } else {
+                    teamBCell.textContent = this.formatTeamText('morning');
+                    teamBCell.classList.add('morning-shift');
+                }
+                row.appendChild(teamBCell);
+
+                return row;
+            }
+
+
+            // Génère le planning pour une période
+            generatePlanning(startDate, days = 14) {
+                for (let i = 0; i < days; i++) {
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + i);
+                    
+                    const row = this.generatePlanningRow(date);
+                    this.planningBody.appendChild(row);
+                }
+
+                this.currentDate = new Date(startDate);
+                this.currentDate.setDate(startDate.getDate() + days);
+            }
+
+            // Initialise le planning
+            initPlanning() {
+                // Commencer à aujourd'hui - 7 jours
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const startDate = new Date(today);
+                startDate.setDate(today.getDate() - 7);
+                
+                // Ajuster au lundi précédent si nécessaire
+                const dayOfWeek = startDate.getDay();
+                if (dayOfWeek !== 1) {
+                    startDate.setDate(startDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+                }
+                
+                this.generatePlanning(startDate, 35); // 5 semaines pour couvrir aujourd'hui + futur
+                this.loading.style.display = 'none';
+                
+                // Scroll vers aujourd'hui après un court délai
+                setTimeout(() => {
+                    const todayRow = document.querySelector(`tr[data-date="${today.toISOString().split('T')[0]}"]`);
+                    if (todayRow) {
+                        todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 500);
+            }
+
+            // Configure le défilement infini
+            setupInfiniteScroll() {
+                let isScrolling = false;
+                
+                window.addEventListener('scroll', () => {
+                    if (isScrolling) return;
+                    
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    const windowHeight = window.innerHeight;
+                    const documentHeight = document.documentElement.scrollHeight;
+                    
+                    // Si on est proche du bas (200px)
+                    if (scrollTop + windowHeight >= documentHeight - 200) {
+                        isScrolling = true;
+                        this.loadMoreDays();
+                        
+                        setTimeout(() => {
+                            isScrolling = false;
+                        }, 500);
+                    }
+                });
+            }
+
+            // Charge plus de jours
+            loadMoreDays() {
+                this.loading.style.display = 'block';
+                
+                setTimeout(() => {
+                    this.generatePlanning(this.currentDate, 14); // 2 semaines supplémentaires
+                    this.loading.style.display = 'none';
+                }, 300);
+            }
+
+            // Configure la navigation par date
+            setupDateNavigation() {
+                this.dateInput.addEventListener('change', () => {
+                    this.navigateToDate();
+                });
+
+                this.dateInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.navigateToDate();
+                    }
+                });
+
+                this.todayButton.addEventListener('click', () => {
+                    this.goToToday();
+                });
+            }
+
+            // Navigue vers aujourd'hui
+            goToToday() {
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const todayString = today.toISOString().split('T')[0];
+                
+                const todayRow = document.querySelector(`tr[data-date="${todayString}"]`);
+                
+                if (todayRow) {
+                    this.scrollToRow(todayRow);
+                } else {
+                    // Générer le planning pour inclure aujourd'hui
+                    this.generatePlanningToDate(today);
+                }
+            }
+
+            // Navigue vers une date spécifique
+            navigateToDate() {
+                const inputValue = this.dateInput.value;
+                if (!inputValue) return;
+
+                const targetDate = new Date(inputValue);
+                targetDate.setHours(0, 0, 0, 0);
+
+                // Chercher si la date existe déjà
+                const existingRow = document.querySelector(`tr[data-date="${inputValue}"]`);
+                
+                if (existingRow) {
+                    this.scrollToRow(existingRow);
+                } else {
+                    // Générer le planning jusqu'à cette date
+                    this.generatePlanningToDate(targetDate);
+                }
+            }
+
+            // Génère le planning jusqu'à une date spécifique
+            generatePlanningToDate(targetDate) {
+                const startDate = new Date();
+                startDate.setHours(0, 0, 0, 0);
+                
+                // Calculer le nombre de jours nécessaires
+                const daysDiff = Math.ceil((targetDate - startDate) / (1000 * 60 * 60 * 24));
+                
+                if (daysDiff > 0) {
+                    // Effacer le planning actuel
+                    this.planningBody.innerHTML = '';
+                    
+                    // Commencer par un lundi
+                    const planningStart = new Date(startDate);
+                    const dayOfWeek = planningStart.getDay();
+                    if (dayOfWeek !== 1) {
+                        planningStart.setDate(planningStart.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+                    }
+                    
+                    // Générer jusqu'à la date cible + quelques jours
+                    const totalDays = Math.max(daysDiff + 14, 28);
+                    this.generatePlanning(planningStart, totalDays);
+                    
+                    // Chercher et faire défiler vers la ligne
+                    const targetRow = document.querySelector(`tr[data-date="${targetDate.toISOString().split('T')[0]}"]`);
+                    if (targetRow) {
+                        setTimeout(() => this.scrollToRow(targetRow), 100);
+                    }
+                }
+            }
+
+            // Fait défiler vers une ligne et la met en évidence
+            scrollToRow(row) {
+                row.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // Ajouter effet de surbrillance
+                row.classList.remove('highlight-row');
+                setTimeout(() => {
+                    row.classList.add('highlight-row');
+                }, 100);
+            }
+        }
+
+        // Initialiser le planning au chargement de la page
+        document.addEventListener('DOMContentLoaded', () => {
+            new PlanningGenerator();
+        });
+    </script>
+</body>
+</html>
