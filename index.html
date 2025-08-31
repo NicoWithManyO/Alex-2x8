@@ -522,10 +522,8 @@
                 } else if (isSmallScreen) {
                     // Format compact pour petits écrans
                     const weekDays = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-                    const months = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 
-                                   'Jul', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'];
                     const year = String(date.getFullYear()).slice(-2);
-                    formattedDate = `${weekDays[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]} ${year}`;
+                    formattedDate = `${weekDays[date.getDay()]} ${date.getDate()}/${String(date.getMonth() + 1).padStart(2, '0')}/${year}`;
                 } else {
                     // Format complet pour grands écrans
                     const options = { 
