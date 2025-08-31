@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Planning 2x8 - Équipes A et B</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -170,6 +173,87 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.15);
         }
 
+        .floating-logo {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .logo-mini {
+            position: relative;
+            font-family: 'Audiowide', cursive;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #ffffff;
+            padding: 12px 16px 8px 16px;
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 15px;
+            border: 1px solid #0d6efd;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-mini::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2) 0%, transparent 50%);
+            animation: backgroundShift 10s ease-in-out infinite;
+            z-index: 0;
+            border-radius: 15px;
+        }
+
+        .logo-mini::after {
+            content: 'développé par';
+            position: absolute;
+            top: 3px;
+            left: 8px;
+            font-size: 0.5rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+            z-index: 10;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        @keyframes backgroundShift {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        .logo-mini > span:first-of-type {
+            color: #0d6efd;
+            font-weight: 800;
+            text-shadow: 0 0 30px rgba(13,110,253,0.5);
+            position: relative;
+            z-index: 10;
+        }
+
+        .dev-badge-mini {
+            background: linear-gradient(135deg, #0d6efd 0%, #003366 100%);
+            color: #fff !important;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 4px;
+            font-weight: 700;
+            position: relative;
+            z-index: 11;
+            box-shadow: 0 4px 16px rgba(13, 110, 253, 0.15);
+        }
+
+        .logo-mini:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 40px rgba(13, 110, 253, 0.4);
+        }
+
         .planning-table th:first-child {
             text-align: right;
         }
@@ -243,6 +327,16 @@
                 gap: 8px;
             }
             
+            .floating-logo {
+                bottom: 15px;
+                right: 15px;
+            }
+            
+            .logo-mini {
+                font-size: 1rem;
+                padding: 6px 10px;
+            }
+            
             .date-input-float {
                 min-width: 100px;
                 font-size: 12px;
@@ -286,6 +380,16 @@
                 bottom: 10px;
                 left: 10px;
                 gap: 6px;
+            }
+            
+            .floating-logo {
+                bottom: 10px;
+                right: 10px;
+            }
+            
+            .logo-mini {
+                font-size: 0.9rem;
+                padding: 5px 8px;
             }
             
             .date-input-float {
@@ -356,6 +460,13 @@
     <div class="floating-controls">
         <input type="date" class="date-input-float" id="date-input" placeholder="JJ/MM/AAAA">
         <button class="today-button" id="today-button">Aujourd'hui</button>
+    </div>
+
+    <!-- Logo flottant -->
+    <div class="floating-logo">
+        <div class="logo-mini">
+            many<span>O</span><span class="dev-badge-mini">.dev</span>
+        </div>
     </div>
 
     <script>
